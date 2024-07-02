@@ -1,0 +1,138 @@
+ <style>
+        form {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #fff; /* White background */
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            color: #000; /* Black text */
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        textarea,
+        select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background: #f5f5f5;
+            color: #000; /* Black text */
+        }
+
+        input[type="text"]:focus,
+        input[type="email"]:focus,
+        textarea:focus,
+        select:focus {
+            background: #fff;
+            border-color: #999;
+        }
+
+        textarea {
+            resize: vertical;
+            height: 150px;
+        }
+
+        small {
+            display: block;
+            margin-top: 5px;
+            color: #666;
+        }
+
+        button {
+            display: inline-block;
+            padding: 10px 20px;
+            color: #fff;
+            background-color: #ff9a00;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        button:hover {
+            background-color: #ff8000;
+        }
+
+        #loading {
+            display: none;
+            text-align: center;
+            margin-top: 20px;
+        }
+    </style>
+ <form id="contactForm" action="https://yourcloudflare.workers.dev/" method="POST">
+        <label for="name">Name:</label>
+        <input type="text" id="name" name="name" required>
+        <br>
+   		<label for="Phone">Phone No:</label>
+        <input type="number" id="Phone" name="Phone" required>
+   <br/>
+        <label for="subject">Subject:</label>
+        <input type="text" id="subject" name="Subject" required>
+        <br>
+      <!--   <label for="options">Options:</label>
+        <select id="options" name="options" required>
+            <option value="" disabled selected>Select an option</option>
+            <option value="option1">cause one</option>
+            <option value="option2">cause 2</option>
+            <option value="option3">cause 3</option>
+            <!-- Add more options as needed 
+        </select>-->
+        <br>
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" required>
+        <br>
+        <label for="message">Message:</label>
+        <textarea id="message" name="message" required></textarea>
+        <br>
+        <input type="hidden" id="pageUrl" name="pageUrl">
+        <input type="hidden" id="pageTitle" name="pageTitle">
+        <button type="submit">Send</button>
+    </form>
+    <div id="loading">
+        <p>Sending message...</p>
+    </div>
+    <script>
+        document.getElementById('contactForm').addEventListener('submit', function (event) {
+            // Capture page URL and title
+            document.getElementById('pageUrl').value = window.location.href;
+            document.getElementById('pageTitle').value = document.title;
+        });
+
+        document.getElementById('contactForm').addEventListener('submit', async function (event) {
+            event.preventDefault();
+            const form = event.target;
+            const formData = new FormData(form);
+            const data = {};
+            formData.forEach((value, key) => { data[key] = value; });
+
+            const loading = document.getElementById('loading');
+            loading.style.display = 'block';
+
+            const response = await fetch(form.action, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            });
+
+            loading.style.display = 'none';
+
+            if (response.ok) {
+                const result = await response.json();
+                alert(result.message);
+                // Redirect to the home page of the form
+                window.location.href = '/';
+            } else {
+                const error = await response.json();
+                alert(`Error: ${error.message}`);
+            }
+        });
+    </script>
